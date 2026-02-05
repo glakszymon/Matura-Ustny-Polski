@@ -1,4 +1,4 @@
-const { createApp, ref, reactive, onMounted } = Vue;
+const { createApp, ref, reactive, onMounted, watch } = Vue;
 
 const app = createApp({
     template: `
@@ -13,8 +13,8 @@ const app = createApp({
                     <label for="questionSelect">📌 Wybierz pytanie:</label>
                     <select id="questionSelect" v-model="selectedQuestionId" class="glass-input" required>
                         <option value="">-- Wybierz pytanie --</option>
-                        <option v-for="(question, idx) in questionList" :key="idx" :value="idx">
-                            {{ question }}
+                        <option v-for="(question, idx) in questionList" :key="idx" :value="question.id || idx">
+                            {{ question.pytanie || question }}
                         </option>
                     </select>
                 </div>
@@ -95,6 +95,7 @@ const app = createApp({
     `,
     setup() {
         const questionList = ref([]);
+        const answerDatabase = ref([]);
         const selectedQuestionId = ref('');
         const successMessage = ref('');
         const errorMessage = ref('');
@@ -129,7 +130,7 @@ const app = createApp({
             };
 
             try {
-                const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwjqMbyYLpYjPA2Kzy_SgDKqOVd4GTiYqPazsHjSOtV-Bl4CU8eO1FCFVz_n93VVQ-d/exec';
+                const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbe8-tcrJ4h2z5QNLEe5m8kjD2WQvH9OoZknZ7TIp0VSvM94nhNvshfiTK1E7xTwJJ/exec';
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     headers: {
@@ -148,19 +149,32 @@ const app = createApp({
                     throw new Error('Pusta odpowiedź z serwera');
                 }
 
-                const data = JSON.parse(text);
-                if (data.success) {
-                    successMessage.value = 'Odpowiedź została zapisana! ✓';
-                    resetForm();
+                const responseData = JSON.parse(text);
+                if (responseData.success) {
+                    successMessage.value = '✅ Odpowiedź zapisana pomyślnie!';
                     setTimeout(() => { successMessage.value = ''; }, 3000);
+                    // Odśwież bazę danych
+                    await reloadAnswerDatabase();
                 } else {
-                    errorMessage.value = data.message || 'Błąd przy zapisywaniu';
+                    errorMessage.value = responseData.message || 'Błąd przy zapisywaniu';
                     setTimeout(() => { errorMessage.value = ''; }, 3000);
                 }
             } catch (error) {
                 errorMessage.value = 'Błąd połączenia: ' + error.message;
                 console.error('Błąd zapisywania:', error);
                 setTimeout(() => { errorMessage.value = ''; }, 3000);
+            }
+        };
+
+        const reloadAnswerDatabase = async () => {
+            try {
+                const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbe8-tcrJ4h2z5QNLEe5m8kjD2WQvH9OoZknZ7TIp0VSvM94nhNvshfiTK1E7xTwJJ/exec';
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const text = await response.text();
+                const data = JSON.parse(text);
+                answerDatabase.value = data.answers || [];
+            } catch (error) {
+                console.error('Błąd odświeżania bazy odpowiedzi:', error);
             }
         };
 
@@ -182,9 +196,49 @@ const app = createApp({
             selectedQuestionId.value = '';
         };
 
+        // Watcher - automatycznie uzupełnia formularz quando pytanie jest wybrane
+        watch(selectedQuestionId, (newId) => {
+            if (!newId || newId === '') {
+                resetForm();
+                return;
+            }
+
+            // Szukamy odpowiedzi dla wybranego pytania po ID
+            // Dane z GAS mają strukturę: { id: "1", wstep: "...", ... } bo są parsowane z nagłówkami
+            const existingAnswer = answerDatabase.value.find(answer => {
+                if (!answer) return false;
+                const answerId = answer.id || answer.ID;
+                return answerId && answerId.toString().trim() === newId.toString().trim();
+            });
+
+            if (existingAnswer) {
+                // Uzupełniamy formularz danymi z bazy
+                Object.assign(formData, {
+                    wstep: existingAnswer.wstep || '',
+                    teza: existingAnswer.teza || '',
+                    arg1_tytul: existingAnswer.arg1_tytul || '',
+                    arg1_rozwiniecie: existingAnswer.arg1_rozwiniecie || '',
+                    arg1_przyklad: existingAnswer.arg1_przyklad || '',
+                    arg1_wniosek: existingAnswer.arg1_wniosek || '',
+                    arg2_tytul: existingAnswer.arg2_tytul || '',
+                    arg2_rozwiniecie: existingAnswer.arg2_rozwiniecie || '',
+                    arg2_przyklad: existingAnswer.arg2_przyklad || '',
+                    arg2_wniosek: existingAnswer.arg2_wniosek || '',
+                    kontekst: existingAnswer.kontekst || '',
+                    podsumowanie: existingAnswer.podsumowanie || ''
+                });
+                successMessage.value = '✏️ Dane załadowane z bazy - edytuj odpowiedź';
+                setTimeout(() => { successMessage.value = ''; }, 2000);
+            } else {
+                // Jeśli odpowiedź nie istnieje, czyszczmy formularz
+                resetForm();
+                selectedQuestionId.value = newId;
+            }
+        });
+
         onMounted(async () => {
             try {
-                const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwjqMbyYLpYjPA2Kzy_SgDKqOVd4GTiYqPazsHjSOtV-Bl4CU8eO1FCFVz_n93VVQ-d/exec';
+                const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbe8-tcrJ4h2z5QNLEe5m8kjD2WQvH9OoZknZ7TIp0VSvM94nhNvshfiTK1E7xTwJJ/exec';
                 const response = await fetch(GOOGLE_SCRIPT_URL);
                 
                 if (!response.ok) {
@@ -199,9 +253,10 @@ const app = createApp({
                 
                 const data = JSON.parse(text);
                 questionList.value = data.questions || [];
+                answerDatabase.value = data.answers || [];
             } catch (error) {
-                console.error('Błąd ładowania pytań:', error);
-                errorMessage.value = 'Błąd ładowania listy pytań: ' + error.message;
+                console.error('Błąd ładowania danych:', error);
+                errorMessage.value = 'Błąd ładowania danych: ' + error.message;
                 setTimeout(() => { errorMessage.value = ''; }, 5000);
             }
         });
@@ -213,7 +268,8 @@ const app = createApp({
             successMessage,
             errorMessage,
             saveAnswer,
-            resetForm
+            resetForm,
+            reloadAnswerDatabase
         };
     }
 });

@@ -1,6 +1,6 @@
 const { createApp, ref, computed, onMounted } = Vue;
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwjqMbyYLpYjPA2Kzy_SgDKqOVd4GTiYqPazsHjSOtV-Bl4CU8eO1FCFVz_n93VVQ-d/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbe8-tcrJ4h2z5QNLEe5m8kjD2WQvH9OoZknZ7TIp0VSvM94nhNvshfiTK1E7xTwJJ/exec';
 
 createApp({
     setup() {

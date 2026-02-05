@@ -38,10 +38,6 @@
 
         <main class="content">
             <div class="dashboard-hero">
-                <div class="hero-content">
-                    <h2>Twoje Postępy</h2>
-                    <p>Monitoruj stopień opanowania materiału.</p>
-                </div>
                 <div class="progress-stats">
                     <div class="stat-circle">
                         <svg viewBox="0 0 36 36" class="circular-chart">
@@ -70,6 +66,10 @@
                     <div class="stat-item stat-understand">
                         <span class="stat-label">Umiem</span>
                         <span class="stat-value">{{ statsPerLevel.understand }}</span>
+                    </div>
+                    <div class="stat-item stat-total">
+                        <span class="stat-label">Razem</span>
+                        <span class="stat-value">{{ question_list.length }}</span>
                     </div>
                 </div>
             </div>

@@ -179,10 +179,9 @@ createApp({
             userProgress.value[id] = status;
             try {
                 await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user: username.value, id: id, status: status })
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ user: username.value, id: id, status: status })
                 });
             } catch (e) { console.error(e); }
         };
@@ -231,9 +230,9 @@ createApp({
 
         // Pamiętaj, aby dodać 'groupedQuestions' do zwracanego obiektu na końcu setup():
         return {
-            groupedQuestions, // <--- to dodaj
+            groupedQuestions,
             question_list, answer_database, isLoggedIn, username, usernameInput, loginError,
-            login, logout, goHome, goToExam, goToExamRandom, goToPattern,
+            login, logout, goHome, goToExam, goToExamRandom, goToPattern, drawRandomQuestion,
             getStatus, updateStatus, progressCount, isLoading,
             currentQuestion, currentPattern, form, checkMode,
             enableCheckMode, gradeScale, grades, setGrade, totalScore,

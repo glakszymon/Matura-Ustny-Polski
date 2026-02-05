@@ -14,11 +14,11 @@ const HeaderComponent = {
         };
         return { isMenuOpen, toggleMenu, closeMenu };
     },
+    // Fragment template w Twoim HeaderComponent
     template: `
     <header v-if="isLoggedIn" class="main-header">
         <div class="header-container">
-            <div class="brand-logo" @click="$emit('go-home')" style="cursor:pointer">
-                <span style="font-size: 1.5rem;">🎓</span>
+            <div class="brand-logo" @click="$emit('go-home')">
                 <span class="brand-text">Matura<b>2026</b></span>
             </div>
 
@@ -32,12 +32,9 @@ const HeaderComponent = {
                     <button @click="closeMenu('draw-random')" class="nav-btn">Start Egzamin</button>
                     <button @click="closeMenu('edit-pattern')" class="nav-btn">Dodaj Odpowiedź</button>
                 </div>
-
+                
                 <div class="user-section">
-                    <div class="user-info">
-                        <span class="user-avatar">👤</span>
-                        <span class="user-name">{{ username }}</span>
-                    </div>
+                    <span class="user-name">{{ username }}</span>
                     <button @click="closeMenu('logout')" class="logout-btn">WYLOGUJ</button>
                 </div>
             </div>

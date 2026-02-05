@@ -799,7 +799,7 @@ ALe zróbmy zmiane
 }
 
 .nav-menu {
-    display: flex;
+    display: flex; /* Zawsze widoczne na dużych ekranach */
     align-items: center;
     gap: 20px;
 }
@@ -859,23 +859,22 @@ ALe zróbmy zmiane
     .burger-btn.is-open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
 
     .nav-menu {
+        display: none; /* KLUCZ: Menu jest całkowicie ukryte gdy "off" */
+        
         position: fixed;
         top: 0;
-        right: -100%; /* Schowane za ekranem */
-        width: 80%;
+        left: 0;
+        width: 100%;
         height: 100vh;
         background: white;
         flex-direction: column;
-        padding: 80px 20px 20px 20px;
-        transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: -10px 0 30px rgba(0,0,0,0.1);
-        align-items: flex-start;
+        padding: 80px 20px;
+        z-index: 1000;
     }
 
     .nav-menu.is-active {
-        right: 0; /* Wysunięte */
+        display: flex; /* Pokazuje menu */
     }
-
     .nav-links {
         flex-direction: column;
         width: 100%;

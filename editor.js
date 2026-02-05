@@ -1,6 +1,6 @@
 const { createApp, ref, reactive, onMounted, watch } = Vue;
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbe8-tcrJ4h2z5QNLEe5m8kjD2WQvH9OoZknZ7TIp0VSvM94nhNvshfiTK1E7xTwJJ/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkmyMNmn9Hi0yCnRK5awfyEWSUiNwFwRNak6RUe_3gFpHObpT2_Pnf_7Sfh74u4nxX/exec';
 
 const app = createApp({
     template: `
@@ -134,6 +134,8 @@ const app = createApp({
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
+                    mode: 'cors',
+                    credentials: 'omit',
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -169,7 +171,14 @@ const app = createApp({
 
         const reloadAnswerDatabase = async () => {
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'GET',
+                    mode: 'cors',
+                    credentials: 'omit',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
                 const text = await response.text();
                 const data = JSON.parse(text);
                 answerDatabase.value = data.answers || [];
@@ -238,8 +247,14 @@ const app = createApp({
 
         onMounted(async () => {
             try {
-                const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbe8-tcrJ4h2z5QNLEe5m8kjD2WQvH9OoZknZ7TIp0VSvM94nhNvshfiTK1E7xTwJJ/exec';
-                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'GET',
+                    mode: 'cors',
+                    credentials: 'omit',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);

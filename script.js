@@ -43,7 +43,7 @@ const HeaderComponent = {
     `
 };
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxGyupicyj0vjiKjRprtPgpAzmEWEVTi6t4o3i7Sc_2gm5Mx5lB_0OWvH3SEEj6CN9S/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3tzIf5z6EJYi6w1Vsn_7MyEMaC68fCzf5EqYHcnUThNYN-ZcN1X3K_HnyZvVMaR8/exec';
 
 const app = createApp({ components: { 'app-header': HeaderComponent },
     setup() {
